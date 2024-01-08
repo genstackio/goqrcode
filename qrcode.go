@@ -31,14 +31,14 @@ func GenerateAndStreamQrCode(w io.Writer, config Config) {
 		blockSize = int(float64(blockSize) * config.Scale)
 	}
 	width := qrCode.Bounds().Max.X
-	firstX := blockSize * config.Offset
-	firstY := blockSize * config.Offset
+	firstX := blockSize * offset
+	firstY := blockSize * offset
 
 	ns := []string{}
 	if len(config.Style) > 0 {
 		ns = append(ns, "style=\""+strings.ReplaceAll(config.Style, "\"", "\\\"")+"\"")
 	}
-	s.Start(width*blockSize+(blockSize*(config.Offset*2)), width*blockSize+(blockSize*(config.Offset*2)), ns...)
+	s.Start(width*blockSize+(blockSize*(offset*2)), width*blockSize+(blockSize*(offset*2)), ns...)
 
 	currY := firstY
 
