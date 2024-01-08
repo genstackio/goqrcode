@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"io"
 	"math"
+	"strings"
 )
 
 var DefaultFilledBlockStyle = "fill:black"
@@ -16,6 +17,16 @@ func GenerateAndStreamQrCode(w io.Writer, config Config) {
 	qrCode, _ := qr.Encode(config.Data, qr.H, qr.Auto)
 	s := svg.New(w)
 	blockSize := config.BlockSize
+	if 0 == blockSize {
+		blockSize = 4
+	}
+	offset := config.Offset
+	if 0 == offset {
+		offset = 4
+	}
+	if config.DisableOffset {
+		offset = 0
+	}
 	if math.Abs(config.Scale) > 0.00001 {
 		blockSize = int(float64(blockSize) * config.Scale)
 	}
@@ -23,7 +34,11 @@ func GenerateAndStreamQrCode(w io.Writer, config Config) {
 	firstX := blockSize * config.Offset
 	firstY := blockSize * config.Offset
 
-	s.Start(width*blockSize+(blockSize*(config.Offset*2)), width*blockSize+(blockSize*(config.Offset*2)))
+	ns := []string{}
+	if len(config.Style) > 0 {
+		ns = append(ns, "style=\""+strings.ReplaceAll(config.Style, "\"", "\\\"")+"\"")
+	}
+	s.Start(width*blockSize+(blockSize*(config.Offset*2)), width*blockSize+(blockSize*(config.Offset*2)), ns...)
 
 	currY := firstY
 
@@ -34,9 +49,13 @@ func GenerateAndStreamQrCode(w io.Writer, config Config) {
 		for y := 0; y < width; y++ {
 			switch qrCode.At(x, y) {
 			case color.Black:
-				s.Rect(currX, currY, blockSize, blockSize, filledBlockStyle)
+				if len(filledBlockStyle) > 0 {
+					s.Rect(currX, currY, blockSize, blockSize, filledBlockStyle)
+				}
 			case color.White:
-				s.Rect(currX, currY, blockSize, blockSize, notFilledBlockStyle)
+				if len(notFilledBlockStyle) > 0 {
+					s.Rect(currX, currY, blockSize, blockSize, notFilledBlockStyle)
+				}
 			}
 			currX += blockSize
 		}
@@ -51,9 +70,15 @@ func buildBlockStylesFromConfig(config Config) (string, string) {
 	if len(filledBlockStyle) == 0 {
 		filledBlockStyle = DefaultFilledBlockStyle
 	}
+	if "-" == filledBlockStyle {
+		filledBlockStyle = ""
+	}
 	notFilledBlockStyle := config.EmptyBlockStyle
 	if len(notFilledBlockStyle) == 0 {
 		notFilledBlockStyle = DefaultNotFilledBlockStyle
+	}
+	if "-" == notFilledBlockStyle {
+		notFilledBlockStyle = ""
 	}
 
 	return filledBlockStyle, notFilledBlockStyle

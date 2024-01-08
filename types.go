@@ -6,5 +6,7 @@ type Config struct {
 	BlockSize       int     `json:"blockSize"`
 	BlockStyle      string  `json:"blockStyle"`
 	EmptyBlockStyle string  `json:"emptyBlockStyle"`
+	Style           string  `json:"style"`
 	Offset          int     `json:"offset"`
+	DisableOffset   bool    `json:"disableOffset"`
 }
