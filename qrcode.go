@@ -19,11 +19,11 @@ func GenerateAndStreamQrCode(w io.Writer, config Config) {
 	if math.Abs(config.Scale) > 0.00001 {
 		blockSize = int(float64(blockSize) * config.Scale)
 	}
-	width := qrCode.Bounds().Max.X * blockSize
+	width := qrCode.Bounds().Max.X
 	firstX := blockSize * config.Offset
 	firstY := blockSize * config.Offset
 
-	s.Start(width+(blockSize*(config.Offset*2)), width+(blockSize*(config.Offset*2)))
+	s.Start(width*blockSize+(blockSize*(config.Offset*2)), width*blockSize+(blockSize*(config.Offset*2)))
 
 	currY := firstY
 
